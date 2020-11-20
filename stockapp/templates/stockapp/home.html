@@ -1,0 +1,332 @@
+{% extends "stockapp/base.html" %}
+
+{% block user-info %}
+    
+{% endblock %}
+
+
+{% block content %}
+<form class="form-inline row justify-content-center mt-5" method="post" action="{% url 'home' %}">
+        
+    {% for field in stockform.visible_fields %}
+        <span>{{field}}</span>
+    {% endfor %}
+
+    
+    <button class="btn btn-outline-success my-2 my-sm-0"  type="submit" id="id_submit_button">Submit</button>
+    <span class="errorlist">
+        {% if error %} {{error}} {% endif %}
+    </span>
+    {% csrf_token %}
+</form>
+    
+{% endblock %}
+
+{% block chart %}
+<div class="row">
+    {% if symbol %}
+    <div class="card" style="width: 15rem;">
+        <img class="card-img-top" src="{{icon}}" alt="{{name}}">
+        <div class="card-body">
+          <h5 class="card-title"> <a href="{{website}}">{{name}}</a></h5>
+          <p class="card-text">{{location}} <br>
+            <br>
+            {% if reg_price %}Regular Price : <span class="price">{{reg_price}}</span>{% endif %}
+          </p>
+        </div>
+        <ul class="list-group list-group-flush">
+            {% if peg %}<li class="list-group-item">PEG Ratio : {{peg}}</li>{% endif %}
+            {% if t_pe %}<li class="list-group-item">Trailing PE : {{t_pe}}</li>{% endif %}
+            {% if f_pe %}<li class="list-group-item">Forward PE : {{f_pe}}</li>{% endif %}
+            {% if profit_margin %}<li class="list-group-item">Profit Margin : {{profit_margin}}</li>{% endif %}
+            {% if short_ratio %}<li class="list-group-item">Short Ratio : {{short_ratio}}</li>{% endif %}
+        </ul>
+        <!-- <div class="card-body">
+          <a href="#" class="card-link">Card link</a>
+          <a href="#" class="card-link">Another link</a>
+        </div> -->
+    </div>
+    {% endif %}
+    <div class="container">
+    <div class="row-pb-auto">
+        <div class="col">
+            <div class="chart-container">
+            <canvas id="priceChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="row-pb-auto">
+        <div class="col">
+            <div class="chart-container">
+            <canvas id="volumeChart"></canvas>
+            </div>
+        </div>
+        <div class="col">
+            <div class="chart-container">
+            <canvas id="highLowChart"></canvas>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>   
+    <div id="predict" class="text-center mt-5">
+    </div>
+ 
+
+
+
+<!-- After button Generation is Clicked -->
+<script>
+
+    function updatePlot(response){
+        let location = document.getElementById("predict")
+        
+        // Adds each new todo-list item to the list
+        var arr = response[0]
+        var symbol = arr.symbol
+        var day_old = arr.price_pred['day_old']
+        var day_pred = arr.price_pred['day_pred']
+        var old_values = arr.price_pred['old_values']
+        var pred_values = arr.price_pred['pred_values']
+        
+
+        function addDays(days) {
+            var result = new Date();
+            result.setDate(result.getDate() + days);
+            return result.toLocaleDateString("en-US", options);
+        }
+    
+        var newDays = []
+        for (var i = 0; i < 100; i++) {
+            newDays.push(addDays(i));
+        }
+        
+
+        var ctx_pred = document.getElementById('predictChart').getContext('2d');
+        var chart_pred = new Chart(ctx_pred, {
+            // The type of chart we want to create
+            type: 'line',
+
+            // The data for our dataset
+            data: {
+                labels: date.concat(newDays),
+                datasets: [{
+                    label: '{{symbol|safe}} Stock Price',
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: close,
+                    fill: false
+                },{
+                    label: '{{symbol|safe}} Stock Price Predicted',
+                    backgroundColor: '#00ff99',
+                    borderColor: '#00ff99',
+                    data: close.concat(pred_values),
+                    fill: false
+                } ]
+            },
+
+            // Configuration options go here
+            options: {
+                scales: {
+                    yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Price'
+                    }
+                    }]
+                }     
+            }
+        });
+    }
+    
+    function generate_pred(){
+        var req = new XMLHttpRequest()
+        req.onreadystatechange = function() {
+            if (req.readyState != 4) return
+            if (req.status != 200) return
+            var response = JSON.parse(req.responseText);
+
+            if (Array.isArray(response)) {
+                updatePlot(response);
+                console.log("LIST TO BE UPDATED")
+
+                // clear percentage on Done
+                // window.clearInterval(intervalId);
+                document.querySelector('#loading-display').innerHTML = 'Done!';
+                j = 0;
+            } 
+        }
+       
+       
+        req.open("GET", "/stockapp/display/{{symbol|safe}}", true);
+        req.send();
+        // call percentage AJAX
+        var intervalId = getDonePercentage();
+    }
+    var j = 0;
+    var values =["Starting....", "Training model....", "Testing....", "Predicting....", "Predicting....", "Predicting....", "Almost Done...."];
+    function getDonePercentage() {  
+        j++;
+        // console.log("start " + j);
+        if (j < values.length) {
+            document.querySelector('#loading-display').innerHTML = values[j];
+            setTimeout(getDonePercentage, 7000);
+        }
+        
+    }
+
+
+
+</script>
+
+{% endblock %}
+
+
+<!-- For initial plotting after stock is entered -->
+<script> 
+{% block plotting %}
+    var dict = (("{{d|safe}}")).replace(/'/g, '"')
+    dict = JSON.parse(dict)
+    // console.log(dict)
+    var date = []
+    var options = {year: 'numeric', month: 'short', day: 'numeric' };
+    var close = []
+    var volume = []
+    var open = []
+    var high = []
+    var low = []
+    for (var i in dict) {
+        date.push(new Date(dict[i]['Date']).toLocaleDateString("en-US", options))
+        close.push(dict[i]['Close'])
+        volume.push(dict[i]['Volume'])
+        open.push(dict[i]['Open'])
+        low.push(dict[i]['Low'])
+        high.push(dict[i]['High'])
+    }
+    
+    var ctx1 = document.getElementById('priceChart').getContext('2d');
+    var chart1 = new Chart(ctx1, {
+        // The type of chart we want to create
+        type: 'line',
+
+        // The data for our dataset
+        data: {
+            labels: date,
+            datasets: [{
+                label: '{{symbol|safe}} Stock Price',
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: close,
+                fill: false
+            }]
+        },
+
+        // Configuration options go here
+        options: {
+            scales: {
+                yAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Price'
+                }
+                }]
+            }     
+        }
+    });
+
+    var ctx2 = document.getElementById('volumeChart').getContext('2d');
+    var chart2 = new Chart(ctx2, {
+        // The type of chart we want to create
+        type: 'bar',
+
+        // The data for our dataset
+        data: {
+            labels: date.slice(-30),
+            datasets: [{
+                label: '{{symbol|safe}} Stock Volume',
+                backgroundColor: '#5200cc',
+                borderColor: '#5200cc',
+                data: volume.slice(-30),
+                fill: true
+            }]
+        },
+
+        // Configuration options go here
+        options: {
+            scales: {
+                yAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Number'
+                }
+                }]
+            }     
+        }
+    });
+
+    var ctx3 = document.getElementById('highLowChart').getContext('2d');
+    var chart3 = new Chart(ctx3, {
+        // The type of chart we want to create
+        type: 'line',
+
+        // The data for our dataset
+        data: {
+            labels: date.slice(-30),
+            datasets: [{
+                label: '{{symbol|safe}} Daily High',
+                backgroundColor: '#00ff99',
+                borderColor: '#00ff99',
+                data: high.slice(-30),
+                fill: false,
+                borderDash: [10,5]
+            },{
+                label: '{{symbol|safe}} Daily Low',
+                backgroundColor: '#e6005c',
+                borderColor: '#e6005c',
+                data: low.slice(-30),
+                fill: false,
+                borderDash: [10,5]
+            },
+            {
+                label: '{{symbol|safe}} Daily Open',
+                backgroundColor: '#ffd9b3',
+                borderColor: '#ffd9b3',
+                data: open.slice(-30),
+                fill: false
+            },
+            {
+                label: '{{symbol|safe}} Daily Close',
+                backgroundColor: '#9999e6',
+                borderColor: '#9999e6',
+                data: close.slice(-30),
+                fill: false
+            }
+            ]
+        },
+
+        // Configuration options go here
+        options: {
+            scales: {
+                yAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Price'
+                }
+                }]
+            }     
+        }
+    });
+    
+
+    let predict = document.createElement("div")
+    predict.innerHTML = '<label>Predict :</label>'
+    + '<button class="btn btn-lg btn-outline-info ml-2 mr-2" onclick="generate_pred()">Generate</button>'
+    + '<span id="loading-display"> </span>'
+    document.getElementById("predict").appendChild(predict);
+    
+    let graphloc = document.createElement("div")
+    graphloc.innerHTML = '<div class="chart-container">'+
+        '<canvas id="predictChart">'+'</canvas>'+'</div>'
+    document.getElementById("predict").appendChild(graphloc);
+{% endblock %}
+</script>

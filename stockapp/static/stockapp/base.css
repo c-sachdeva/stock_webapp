@@ -1,0 +1,44 @@
+
+.errorlist {
+    color:red;
+}
+
+body {
+    font-family: "Lucida Console", Courier, monospace;
+    font-size: large;
+}
+
+
+.top_nav {
+    background: rgb(238,174,202);
+    background: linear-gradient(90deg, rgba(238,174,202,1) 0%, rgba(148,187,233,1) 100%);
+}
+
+.chart-container{
+    /* height:40vh;
+    width:80vw; */
+    padding-bottom: auto;
+}
+
+.navbar-brand {
+    margin-left: 2rem;
+}
+
+.card {
+    height: 50rem;
+    margin-left: 2rem;
+    margin-top: 2rem;
+    align-content: center;
+}
+
+.price {
+    /* font-family: "Lucida Console", Courier, monospace; */
+    font-size: x-large;
+}
+
+/* @media only screen and (max-width: 600px) {
+    .card {
+        height: 50rem;
+        align-content: center;
+    }
+} */

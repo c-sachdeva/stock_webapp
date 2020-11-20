@@ -1,0 +1,5 @@
+stockapp/__pycache__/
+stockapp/migrations/
+webapps/__pycache__/
+db.sqlite3
+.vscode/settings.json
