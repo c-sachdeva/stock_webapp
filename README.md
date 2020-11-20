@@ -19,15 +19,16 @@
 
 * [About the Project](#about-the-project)
   * [Built With](#built-with)
+* [How to use](#how-to)  
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
+  * [Additional notes](#additional-notes)
 * [Usage](#usage)
-* [Roadmap](#roadmap)
+* [Install and Configure MySQL](#mysql)
+* [Domain Map](#domainmap)
 * [Contributing](#contributing)
 * [License](#license)
 * [Contact](#contact)
-* [Acknowledgements](#acknowledgements)
 
 
 
@@ -171,7 +172,7 @@ Project Link: [https://github.com/c-sachdeva/stock_webapp](https://github.com/c-
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/csachdeva/Stock_App.svg?style=flat-square
-[contributors-url]: https://github.com/c-sachdeva/Stock_App/graphs/contributors
+[contributors-url]: https://github.com/c-sachdeva/stock_webapp/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/c-sachdeva/Stock_App.svg?style=flat-square
 [forks-url]: https://github.com/c-sachdeva/Stock_App/network/members
 [stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=flat-square
@@ -179,7 +180,7 @@ Project Link: [https://github.com/c-sachdeva/stock_webapp](https://github.com/c-
 [issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=flat-square
 [issues-url]: https://github.com/c-sachdeva/Stock_App/issues
 [license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=flat-square
-[license-url]: https://github.com/c-sachdeva/stock_webapp/master/LICENSE.txt
+[license-url]: https://github.com/c-sachdeva/stock_webapp/blob/main/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/csachdeva/
 [tesla-screenshot]: imagesREADME/tesla.jpg
